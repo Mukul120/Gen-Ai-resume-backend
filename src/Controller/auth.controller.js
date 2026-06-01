@@ -70,7 +70,14 @@ const login = async (req, res) => {
         const token = generateToken(isEmailExist._id, isEmailExist.username);
 
         res.cookie("token", token, cookieOptions)
-        return res.status(200).json({ message: "Login successful" });
+        return res.status(200).json({
+            message: "Login successful",
+            user: {
+                id: isEmailExist._id,
+                username: isEmailExist.username,
+                email: isEmailExist.email,
+            }
+        });
     } catch (err) {
         return res.status(500).json({ message: err.message })
     }
