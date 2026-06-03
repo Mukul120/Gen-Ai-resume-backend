@@ -89,8 +89,21 @@ const logout = (req, res) => {
     return res.status(200).json({ message: "Logout successfully" })
 }
 
+const getMe = (req, res) => {
+    const user = req.user;
+    console.log("user",user)
+    return res.status(200).json({
+        user: {
+            id: user._id,
+            username: user.username,
+            email: user.email
+        }
+    })
+}
+
 module.exports = {
     register,
     login,
-    logout
+    logout,
+    getMe
 }
