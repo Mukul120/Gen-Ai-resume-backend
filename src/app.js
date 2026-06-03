@@ -4,6 +4,7 @@ const app = express();
 
 const authRoutes = require("./Routes/auth.routes.js");
 const cookieParser = require("cookie-parser");
+const interviewRoutes = require("./Routes/Interview.routes.js");
 
 
 app.use(express.json());
@@ -14,7 +15,7 @@ app.use(cors({
 }))
 
 app.use("/api/auth", authRoutes);
-
+app.use("/api/interview", interviewRoutes)
 
 
 
