@@ -1,6 +1,6 @@
 const { GoogleGenAI } = require("@google/genai")
-const { z } = require("zod")
-const { zodToJsonSchema } = require("zod-to-json-schema")
+const zod = require("zod")
+const { z } = zod
 const puppeteer = require("puppeteer")
 
 const ai = new GoogleGenAI({
@@ -32,6 +32,14 @@ const interviewReportSchema = z.object({
     title: z.string().describe("The title of the job for which the interview report is generated"),
 })
 
+function parseJsonWithSchema(responseText, schema, errorMessage) {
+    try {
+        return schema.parse(JSON.parse(responseText))
+    } catch (error) {
+        throw new Error(`${errorMessage}: ${error.message}`)
+    }
+}
+
 async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
 
 
@@ -39,6 +47,8 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
                         Resume: ${resume}
                         Self Description: ${selfDescription}
                         Job Description: ${jobDescription}
+
+                        Return JSON exactly matching the provided schema. Use the field name "title" for the job title. Do not use "job_title".
 `
 
     const response = await ai.models.generateContent({
@@ -46,11 +56,11 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
         contents: prompt,
         config: {
             responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(interviewReportSchema),
+            responseJsonSchema: zod.toJSONSchema(interviewReportSchema),
         }
     })
-
-    return JSON.parse(response.text)
+    console.log(response.text)
+    return parseJsonWithSchema(response.text, interviewReportSchema, "AI returned invalid interview report JSON")
 
 
 }
@@ -100,12 +110,12 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
         contents: prompt,
         config: {
             responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(resumePdfSchema),
+            responseJsonSchema: zod.toJSONSchema(resumePdfSchema),
         }
     })
 
 
-    const jsonContent = JSON.parse(response.text)
+    const jsonContent = parseJsonWithSchema(response.text, resumePdfSchema, "AI returned invalid resume PDF JSON")
 
     const pdfBuffer = await generatePdfFromHtml(jsonContent.html)
 
