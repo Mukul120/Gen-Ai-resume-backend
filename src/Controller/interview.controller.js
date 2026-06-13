@@ -104,10 +104,10 @@ async function generateResumePdfController(req, res) {
             "Content-Type": "application/pdf",
             "Content-Disposition": `attachment; filename=resume_${interviewReportId}.pdf`
         })
-
+        console.log("pdf generated")
         res.send(pdfBuffer)
     } catch (error) {
-        console.error("Error generating resume PDF:", error)
+        console.log("Error generating resume PDF:", error)
         res.status(500).json({ message: error.message || "Failed to generate resume PDF." })
     }
 }
