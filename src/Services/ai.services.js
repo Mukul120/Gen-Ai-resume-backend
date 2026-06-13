@@ -70,7 +70,10 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 async function generatePdfFromHtml(htmlContent) {
     const browser = await puppeteer.launch()
     const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" })
+    await page.setContent(htmlContent, {
+        waitUntil: "domcontentloaded",
+        timeout: 200000
+    })
 
     const pdfBuffer = await page.pdf({
         format: "A4", margin: {
